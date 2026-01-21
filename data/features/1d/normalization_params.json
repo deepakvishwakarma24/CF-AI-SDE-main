@@ -1,0 +1,397 @@
+{
+  "adj close": {
+    "mean": 115.55265941460485,
+    "std": 73.77207704538887,
+    "method": "zscore"
+  },
+  "stock splits": {
+    "mean": 0.0015917230401910067,
+    "std": 0.07979280770071966,
+    "method": "zscore"
+  },
+  "sma_20": {
+    "mean": 117.5945168575862,
+    "std": 72.74000101901804,
+    "method": "zscore"
+  },
+  "sma_50": {
+    "mean": 117.21487785873475,
+    "std": 71.62918225591585,
+    "method": "zscore"
+  },
+  "sma_200": {
+    "mean": 116.05285546279305,
+    "std": 67.28578456044599,
+    "method": "zscore"
+  },
+  "ema_12": {
+    "mean": 117.67457158715969,
+    "std": 72.95926101347845,
+    "method": "zscore"
+  },
+  "ema_26": {
+    "mean": 117.51608144071206,
+    "std": 72.43390453394152,
+    "method": "zscore"
+  },
+  "macd": {
+    "mean": 0.6857899359413105,
+    "std": 2.478093830441638,
+    "method": "zscore"
+  },
+  "macd_signal": {
+    "mean": 0.6940499958601506,
+    "std": 2.319633161280575,
+    "method": "zscore"
+  },
+  "macd_histogram": {
+    "mean": -0.006768531499049487,
+    "std": 0.7717923716471241,
+    "method": "zscore"
+  },
+  "adx_14": {
+    "mean": 36.19456073264793,
+    "std": 14.872403755239194,
+    "method": "zscore"
+  },
+  "rsi_14": {
+    "mean": 55.9277405838729,
+    "std": 17.992573964008997,
+    "method": "zscore"
+  },
+  "roc_5": {
+    "mean": 0.5441661503234765,
+    "std": 3.8692392275467955,
+    "method": "zscore"
+  },
+  "roc_20": {
+    "mean": 2.2442758696925798,
+    "std": 7.772872743432473,
+    "method": "zscore"
+  },
+  "stoch_k": {
+    "mean": 60.05425026146774,
+    "std": 30.883819839328144,
+    "method": "zscore"
+  },
+  "stoch_d": {
+    "mean": 60.09265432921961,
+    "std": 28.93811914886706,
+    "method": "zscore"
+  },
+  "williams_r_14": {
+    "mean": -39.94574973853226,
+    "std": 30.883819839328144,
+    "method": "zscore"
+  },
+  "cci_20": {
+    "mean": 32.25536018012686,
+    "std": 111.37430872841891,
+    "method": "zscore"
+  },
+  "mfi_14": {
+    "mean": 54.646338362056134,
+    "std": 15.977817718498647,
+    "method": "zscore"
+  },
+  "atr_14": {
+    "mean": 2.7083418084280835,
+    "std": 1.955604385138107,
+    "method": "zscore"
+  },
+  "bb_middle": {
+    "mean": 117.5945168575862,
+    "std": 72.74000101901804,
+    "method": "zscore"
+  },
+  "bb_upper": {
+    "mean": 124.51866291561278,
+    "std": 76.77442183130592,
+    "method": "zscore"
+  },
+  "bb_lower": {
+    "mean": 110.67037079955962,
+    "std": 68.87868190499346,
+    "method": "zscore"
+  },
+  "bb_width": {
+    "mean": 13.848292116053177,
+    "std": 10.617831417675022,
+    "method": "zscore"
+  },
+  "hist_vol_20": {
+    "mean": 0.2596962160231941,
+    "std": 0.12950794743305394,
+    "method": "zscore"
+  },
+  "hist_vol_60": {
+    "mean": 0.27029733185368016,
+    "std": 0.10791111614319687,
+    "method": "zscore"
+  },
+  "vwap": {
+    "mean": 0.023197798458596684,
+    "std": 0.053721899330861855,
+    "method": "zscore"
+  },
+  "obv": {
+    "mean": 4892878090.557501,
+    "std": 2198678360.2917066,
+    "method": "zscore"
+  },
+  "volume_roc_10": {
+    "mean": 9.710257357432543,
+    "std": 54.89333496651417,
+    "method": "zscore"
+  },
+  "ad_line": {
+    "mean": 8139306558.67475,
+    "std": 3906223194.886951,
+    "method": "zscore"
+  },
+  "cmf_20": {
+    "mean": 0.060215119238959045,
+    "std": 0.13671937864168468,
+    "method": "zscore"
+  },
+  "price_vs_sma20": {
+    "mean": 0.009520980620213934,
+    "std": 0.042654613050264086,
+    "method": "zscore"
+  },
+  "golden_cross": {
+    "mean": 0.0019896538002387586,
+    "std": 0.04457000742319151,
+    "method": "zscore"
+  },
+  "death_cross": {
+    "mean": 0.0019896538002387586,
+    "std": 0.04457000742319151,
+    "method": "zscore"
+  },
+  "doji": {
+    "mean": 0.06685236768802229,
+    "std": 0.24981585752418978,
+    "method": "zscore"
+  },
+  "hammer": {
+    "mean": 0.005571030640668524,
+    "std": 0.07444595133381181,
+    "method": "zscore"
+  },
+  "shooting_star": {
+    "mean": 0.005968961400716275,
+    "std": 0.0770434610858991,
+    "method": "zscore"
+  },
+  "engulfing_bullish": {
+    "mean": 0.03660962992439316,
+    "std": 0.18783877468049476,
+    "method": "zscore"
+  },
+  "engulfing_bearish": {
+    "mean": 0.03820135296458416,
+    "std": 0.19172020288022928,
+    "method": "zscore"
+  },
+  "morning_star": {
+    "mean": 0.03302825308396339,
+    "std": 0.17874591326898265,
+    "method": "zscore"
+  },
+  "evening_star": {
+    "mean": 0.026661360923199363,
+    "std": 0.1611237517655909,
+    "method": "zscore"
+  },
+  "distance_to_resistance": {
+    "mean": -5.779065569592364,
+    "std": 7.057603514982966,
+    "method": "zscore"
+  },
+  "distance_to_support": {
+    "mean": 8.184165671623125,
+    "std": 7.741847464065276,
+    "method": "zscore"
+  },
+  "support_resistance_ratio": {
+    "mean": -25721740.498428605,
+    "std": 994645194.7376757,
+    "method": "zscore"
+  },
+  "return_1d": {
+    "mean": 0.0009125863540426122,
+    "std": 0.018224662600403604,
+    "method": "zscore"
+  },
+  "return_5d": {
+    "mean": 0.004680530626881133,
+    "std": 0.03874298424079894,
+    "method": "zscore"
+  },
+  "return_20d": {
+    "mean": 0.019236933018971423,
+    "std": 0.0774546616293665,
+    "method": "zscore"
+  },
+  "high_low_ratio": {
+    "mean": 0.020122769886335018,
+    "std": 0.012026825208225744,
+    "method": "zscore"
+  },
+  "close_position": {
+    "mean": 0.5341334207082427,
+    "std": 0.30612790385142313,
+    "method": "zscore"
+  },
+  "gap": {
+    "mean": 5.4944677144943024e-05,
+    "std": 0.01175528937090782,
+    "method": "zscore"
+  },
+  "fib_236": {
+    "mean": -3.3055158681528924,
+    "std": 8.492792933194327,
+    "method": "zscore"
+  },
+  "fib_382": {
+    "mean": 0.04556102984137371,
+    "std": 8.033673128278714,
+    "method": "zscore"
+  },
+  "fib_500": {
+    "mean": 2.7539656460285187,
+    "std": 8.119363913463422,
+    "method": "zscore"
+  },
+  "fib_618": {
+    "mean": 5.462370262215664,
+    "std": 8.603932295661032,
+    "method": "zscore"
+  },
+  "return_10d": {
+    "mean": 0.009458452337258144,
+    "std": 0.054274526217436746,
+    "method": "zscore"
+  },
+  "rsi_14_slope_5": {
+    "mean": 5.826348612968943,
+    "std": 41.45054162914138,
+    "method": "zscore"
+  },
+  "rsi_14_rising_5": {
+    "mean": 0.5009948269001194,
+    "std": 0.500098522511766,
+    "method": "zscore"
+  },
+  "rsi_14_slope_10": {
+    "mean": 11.736080878661365,
+    "std": 66.16522428095759,
+    "method": "zscore"
+  },
+  "rsi_14_rising_10": {
+    "mean": 0.4982093115797851,
+    "std": 0.5000963051767894,
+    "method": "zscore"
+  },
+  "macd_slope_5": {
+    "mean": 8.351815435949703,
+    "std": 1219.4359916768526,
+    "method": "zscore"
+  },
+  "macd_rising_5": {
+    "mean": 0.5005968961400716,
+    "std": 0.5000991560342393,
+    "method": "zscore"
+  },
+  "macd_slope_10": {
+    "mean": -15.599809969827714,
+    "std": 1477.1249076751867,
+    "method": "zscore"
+  },
+  "macd_rising_10": {
+    "mean": 0.5117389574214086,
+    "std": 0.49996166284398397,
+    "method": "zscore"
+  },
+  "stoch_k_slope_5": {
+    "mean": Infinity,
+    "std": NaN,
+    "method": "zscore"
+  },
+  "stoch_k_rising_5": {
+    "mean": 0.4795065658575408,
+    "std": 0.4996792713933772,
+    "method": "zscore"
+  },
+  "stoch_k_slope_10": {
+    "mean": Infinity,
+    "std": NaN,
+    "method": "zscore"
+  },
+  "stoch_k_rising_10": {
+    "mean": 0.47433346597692,
+    "std": 0.4994401756713673,
+    "method": "zscore"
+  },
+  "cci_20_slope_5": {
+    "mean": -25.045387895292937,
+    "std": 2066.183523095067,
+    "method": "zscore"
+  },
+  "cci_20_rising_5": {
+    "mean": 0.47512932749701553,
+    "std": 0.4994804557778472,
+    "method": "zscore"
+  },
+  "cci_20_slope_10": {
+    "mean": -16.65289865360291,
+    "std": 2043.4557287346279,
+    "method": "zscore"
+  },
+  "cci_20_rising_10": {
+    "mean": 0.48229208117787503,
+    "std": 0.4997857811853056,
+    "method": "zscore"
+  },
+  "macd_cross_above": {
+    "mean": 0.0354158376442499,
+    "std": 0.1848652358713843,
+    "method": "zscore"
+  },
+  "macd_cross_below": {
+    "mean": 0.035813768404297654,
+    "std": 0.185862553708016,
+    "method": "zscore"
+  },
+  "stoch_cross_above": {
+    "mean": 0.19896538002387584,
+    "std": 0.39930139530761816,
+    "method": "zscore"
+  },
+  "stoch_cross_below": {
+    "mean": 0.19896538002387584,
+    "std": 0.3993013953076181,
+    "method": "zscore"
+  },
+  "rsi_cross_above_30": {
+    "mean": 0.024273776362912853,
+    "std": 0.15392851818598285,
+    "method": "zscore"
+  },
+  "rsi_cross_below_70": {
+    "mean": 0.05133306804615997,
+    "std": 0.22072011759539223,
+    "method": "zscore"
+  },
+  "price_cross_bb_upper": {
+    "mean": 0.03740549144448866,
+    "std": 0.18979108087752714,
+    "method": "zscore"
+  },
+  "price_cross_bb_lower": {
+    "mean": 0.020294468762435337,
+    "std": 0.1410337489722595,
+    "method": "zscore"
+  }
+}

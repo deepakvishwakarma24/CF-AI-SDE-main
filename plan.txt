@@ -1,0 +1,172 @@
+SECTION 1: High-Level System Overview
+The repository currently contains three completed subsystems that are not yet integrated end-to-end: a Python data pipeline that pulls Yahoo Finance OHLCV data, validates it, and engineers technical features into CSV files; a multi-agent AI analysis layer that expects in-memory context and, for market data, a MongoDB collection; and a Next.js UI that renders a landing page plus several research screens using mock data and a small set of API routes that fetch public market/crypto/news data. There is no existing database layer between the pipeline and agents, and no UI dependency on the pipeline or agents yet.
+
+SECTION 2: Component-wise Analysis
+AI_Agents (inputs, outputs, dependencies)
+- Inputs (per agent):
+  - MarketDataAgent: context requires symbol; reads OHLCV from MongoDB collection with fields symbol, timestamp, open, high, low, close, volume. Period fetch default 100 rows.
+  - RiskMonitoringAgent: context requires positions DataFrame with columns symbol, quantity, returns, timestamp and current_drawdown float.
+  - MacroAgent: no required context; pulls economic events from Economic Calendar API.
+  - SentimentAgent: no required context; pulls news headlines from News API, runs FinBERT.
+  - VolatilityAgent: context requires returns Series (min 30 entries).
+  - RegimeDetectionAgent: context requires indicators DataFrame (min 60 rows) with returns column at minimum.
+  - SignalAggregatorAgent: context requires list of AgentResponse objects in agent_outputs.
+- Outputs: standardized AgentResponse (agent_name, timestamp, summary, confidence_score, structured_data, recommendation). AgentResponse JSON-compatible via Pydantic serialization. Aggregator emits synthesized summary and conflict analysis.
+- Dependencies:
+  - MongoDB for MarketDataAgent (pymongo).
+  - External APIs: News API, TradingEconomics (or similar), Gemini/Groq LLM APIs.
+  - ML_Models package for volatility forecasting and regime classification.
+  - In-memory learning logs only (BaseAgent.memory_log), no persistence.
+
+Data-inges-fe (inputs, outputs, current storage)
+- Inputs:
+  - Symbols and timeframes (interactive or CLI). Defaults in settings include 36 liquid symbols and 6 indices; timeframes: 1m, 5m, 1h, 1d.
+  - External source: Yahoo Finance (yfinance). No other sources.
+- Outputs (in-memory dicts and CSV files):
+  - Raw data CSVs: data/raw/{timeframe}/{symbol}_{timeframe}_raw.csv
+  - Validated data CSVs: data/validated/{timeframe}/{symbol}_{timeframe}_validated.csv
+  - Clean data CSVs: data/validated/{timeframe}/clean/{symbol}_{timeframe}_clean.csv
+  - Validation log: data/validated/validation_log.csv
+  - Feature data CSVs: data/features/{timeframe}/{symbol}_{timeframe}_features.csv
+  - Normalization parameters: data/features/{timeframe}/normalization_params.json
+- Raw schema (exact columns as produced by ingestion merge):
+  - timestamp, symbol, open, high, low, close, volume, adj_open, adj_high, adj_low, adj_close, adj_volume, dividends, stock_splits
+- Validated schema:
+  - All raw columns plus: valid_price_relationship, valid_volume, is_outlier, is_duplicate, has_gap, is_valid, price_change_pct, time_diff
+- Clean schema:
+  - Raw columns only (validation columns removed); duplicates removed.
+- Feature schema:
+  - Base columns (raw + adjusted + dividends + stock_splits) plus engineered indicators. Per current FEATURE_CONFIG and technical_indicators.py, this includes at minimum:
+    - Trend: sma_20, sma_50, sma_200, ema_12, ema_26, macd, macd_signal, macd_histogram, adx_14, price_vs_sma20, golden_cross, death_cross
+    - Momentum: rsi_14, roc_5, roc_20, stoch_k, stoch_d, williams_r_14, cci_20, mfi_14
+    - Volatility: atr_14, bb_middle, bb_upper, bb_lower, bb_width, hist_vol_20, hist_vol_60
+    - Volume: vwap, obv, volume_roc_10, ad_line, cmf_20
+    - Patterns: doji, hammer, engulfing_bullish, engulfing_bearish, morning_star, evening_star; shooting_star is also produced by detect_candlestick_patterns even though config excludes it
+    - Support/Resistance: distance_to_resistance, distance_to_support, support_resistance_ratio
+    - Price features: return_1d, return_5d, return_20d, high_low_ratio, close_position, gap
+    - Derivatives: indicator slopes for rsi_14, macd, stoch_k, cci_20 across periods 5 and 10; crossovers for macd, stochastic, RSI 30/70, and Bollinger band crossings
+    - Normalized duplicates: all numeric feature columns (excluding OHLCV/metadata) with _norm suffix
+  - Note: technical_indicators.py includes a duplicate block that recomputes patterns/support/fib/price/trend regardless of config, meaning fib_* and extra returns may still appear in outputs even when disabled. This is a current behavior that must be preserved unless explicitly changed later.
+
+UI (what data it expects, what APIs it calls)
+- Next.js app with landing page and internal pages (market, indicators, backtest, mentor, strategy). UI must not be modified.
+- Data sources and expectations:
+  - /api/crypto-market: server route uses CoinGecko markets endpoint; components CryptoMarketLeaders and CryptoHeatmap also directly call CoinGecko.
+  - /api/market-indices: server route uses AlphaVantage TIME_SERIES_DAILY for SPY, QQQ, DIA.
+  - /api/top-stories: server route uses NewsAPI top-headlines.
+  - /api/risk-regime: empty route file; RiskRegime component is currently hardcoded to a mock regime.
+  - Local mock data files: marketData.ts (candles and SMA), backtestResults.ts, mentorResponse.ts.
+- No UI calls to Data-inges-fe or AI_Agents at this time.
+- Known UI constraints: Sidebar links to /strategy but actual page is /stratergy; must not change UI, so integration should not rely on navigation updates.
+
+SECTION 3: Data Flow Map
+1) External APIs → Ingestion: Yahoo Finance data pulled via yfinance (raw and adjusted OHLCV) into in-memory DataFrames.
+2) Ingestion → Validation: OHLCVValidator checks price relationships, volume, outliers, duplicates, timestamp gaps; outputs validated DataFrames and a validation log.
+3) Validation → Features: TechnicalIndicators generates features; FeatureNormalizer appends normalized versions; outputs feature DataFrames and normalization parameters.
+4) Features → Agents (future integration): returns Series and indicators DataFrames are passed in memory to VolatilityAgent and RegimeDetectionAgent; RiskMonitoringAgent consumes positions DataFrame; MarketDataAgent reads OHLCV from MongoDB; SentimentAgent and MacroAgent use external APIs; SignalAggregatorAgent aggregates AgentResponses.
+5) Agents → UI (future integration): aggregated AgentResponse and supporting metrics should be served via backend endpoints consumed by UI components (preferably behind existing Next.js API routes to avoid UI changes).
+
+SECTION 4: Database Integration Points (NO CODE)
+Where MongoDB should be connected
+- Data-inges-fe: after ingestion merge (raw+adjusted), after validation, and after feature generation. Writes should be additive and not replace current CSV outputs to avoid breaking existing flows.
+- AI_Agents:
+  - MarketDataAgent already reads MongoDB and should be pointed at the new raw market data collection (same schema as current CSV output).
+  - Optional: persist AgentResponse outputs and BaseAgent memory_log to MongoDB for auditability and downstream UI.
+- UI: no direct DB access. Keep UI unchanged and expose DB-backed data via server routes or a new backend layer that existing routes can call.
+
+Expected MongoDB collections and schema shape
+1) market_data_raw
+- Purpose: immutable raw OHLCV (including adjusted) from ingestion.
+- Shape: symbol, timestamp (UTC ISODate), open, high, low, close, volume, adj_open, adj_high, adj_low, adj_close, adj_volume, dividends, stock_splits, timeframe, source, ingestion_run_id, created_at.
+- Immutable: yes; append-only by time.
+
+2) market_data_validated
+- Purpose: validated OHLCV with flags and diagnostics.
+- Shape: market_data_raw fields plus valid_price_relationship, valid_volume, is_outlier, is_duplicate, has_gap, is_valid, price_change_pct, time_diff, validation_run_id, validated_at.
+- Mutable: append-only; do not overwrite raw.
+
+3) market_data_clean
+- Purpose: clean subset used by features and ML.
+- Shape: same as market_data_raw (no validation flags), plus validation_run_id, cleaned_at.
+- Mutable: append-only; derived from validated.
+
+4) market_features
+- Purpose: engineered indicators and normalized features.
+- Shape: market_data_clean fields plus feature columns listed in SECTION 2, plus feature_version, feature_config_hash, normalization_version, engineered_at.
+- Versioned: yes; preserve previous versions by version fields.
+
+5) normalization_params
+- Purpose: store normalizer parameters per timeframe/symbol or global per timeframe depending on desired consistency.
+- Shape: method, params map (mean/std or min/max), scope (symbol/timeframe), computed_at, feature_version.
+- Versioned: yes; linked to feature_version.
+
+6) validation_log
+- Purpose: store all validation issues for audit.
+- Shape: timestamp, symbol, issue, details (fields like high, low, close, gap_duration), timeframe, validation_run_id, logged_at.
+
+7) agent_outputs
+- Purpose: persist AgentResponse for audits and UI.
+- Shape: agent_name, timestamp, summary, confidence_score, structured_data, recommendation, context_id, run_id, model_versions, created_at.
+- Versioned: yes; use run_id for aggregator runs.
+
+8) agent_memory
+- Purpose: persist BaseAgent memory entries.
+- Shape: agent_name, timestamp, input_context, prediction (AgentResponse), actual_outcome, accuracy_score.
+
+9) positions_and_risk (optional, if risk analysis needs persistence)
+- Purpose: store portfolio positions and risk metrics used by RiskMonitoringAgent.
+- Shape: portfolio_id, symbol, quantity, returns, timestamp, drawdown, var, computed_at.
+
+What stays immutable
+- market_data_raw must be immutable once written.
+- Validation logs should be append-only.
+
+What is versioned
+- market_features (feature_version + config hash)
+- normalization_params (linked to feature_version)
+- agent_outputs (run_id and model versions)
+
+Where DB integration should be inserted without breaking anything
+- Keep CSV writes intact; add DB writes in parallel at the end of each stage.
+- Use the same schema fields as CSV to avoid downstream mismatch.
+- MarketDataAgent should read from market_data_raw (or a view alias) with the exact fields it already expects.
+- Build a context assembly layer (separate integration module) that loads returns and indicator DataFrames from market_features to feed VolatilityAgent and RegimeDetectionAgent without changing their logic.
+- Expose agent_outputs through server-side API routes for UI use later, without changing UI component props or routing.
+
+SECTION 5: Risks & Constraints
+- UI must not change: no component edits, no route path changes, no prop changes; any integration must be behind existing API endpoints or new backend services.
+- Pipeline behavior must remain identical: do not remove CSV outputs; DB writes must be additive.
+- MarketDataAgent schema requirement: expects symbol, timestamp, open, high, low, close, volume in MongoDB; mismatched schema will break anomaly detection.
+- Feature generation currently duplicates some indicators and computes Fibonacci/returns irrespective of config; DB should mirror actual generated output to prevent regressions.
+- API keys are hardcoded in UI server routes; replacing these with DB-backed data must retain the same response shape.
+- RAG not implemented: any plan should not depend on a retrieval layer yet.
+- Sidebar links to /strategy but actual page is /stratergy; do not rely on that route in integration.
+
+SECTION 6: Proposed Integration Phases
+Phase 1: DB schema & connection
+- Define collections listed in SECTION 4 with indexes on symbol, timestamp, timeframe, and version fields.
+- Establish connection configuration via environment variables for Data-inges-fe and AI_Agents.
+- Create run_id strategy for pipeline and agent runs (UUID/time-based) for audit trails.
+
+Phase 2: Data pipeline → DB
+- After ingestion merge, write market_data_raw in parallel with existing CSV output.
+- After validation, write market_data_validated and validation_log; write market_data_clean derived from validated.
+- After feature engineering and normalization, write market_features and normalization_params.
+- Preserve timestamps in UTC and symbol casing exactly as current CSV outputs.
+
+Phase 3: Agents → DB
+- Point MarketDataAgent to market_data_raw collection (or alias) with the exact schema.
+- Add persistence of AgentResponse into agent_outputs and BaseAgent memory into agent_memory; do not alter AgentResponse schema.
+- Create a context builder that loads recent returns and indicator windows from market_features to feed VolatilityAgent and RegimeDetectionAgent without altering agent code signatures.
+
+Phase 4: UI read-only DB access
+- Keep UI untouched; update server-side API routes to optionally read cached/derived DB data where appropriate, falling back to external APIs when missing.
+- Implement /api/risk-regime to read latest agent_outputs (SignalAggregatorAgent or RegimeDetectionAgent) and return a UI-compatible summary; do not change the RiskRegime component.
+- Optional: provide new API endpoints for backtest and mentor outputs while keeping mock data as fallback until real integration is validated.
+
+Unclear items (explicitly noted)
+- UI component MarketIntelligence is empty and not used; no data expectations can be inferred.
+- /api/risk-regime is empty; intended response shape is not defined in code.
+- There is no existing integration layer between Data-inges-fe outputs and AI_Agents inputs; context assembly needs to be defined without changing agent APIs.
+- web-ui folder is empty; no additional frontend code to analyze.
+- Some UI assets are binary (favicon.ico) and not inspected; they do not affect data flow.
